@@ -95,8 +95,8 @@ function comprobarInstalado_dpkg() {
 		echo "ISC DHCP Server ya está instalado en tu sistema."
 		echo "No se continúa con la instalación."
 		preguntasInstalacion
-	else
-		continue
+	#else
+		#continue
 	fi
 }
 
