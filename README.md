@@ -2,7 +2,7 @@
 
 Instaladores automatizados
 
-## Suite ELK (Elasticsearch Logstash Kibana)
+## Suite ELK (Elasticsearch Logstash Kibana) ✅ ![](https://progress-bar.dev/99/?title=Ubuntu) ![](https://progress-bar.dev/40/?title=Centos)
 
 Descargar y convertir en ejecutable:
 
@@ -17,7 +17,7 @@ Ejecutar:
 ```
 
 
-## OpenVPN
+## OpenVPN ✅ ![](https://progress-bar.dev/99/)
 
 Descargar y convertir en ejecutable:
 
@@ -32,7 +32,7 @@ Ejecutar:
 ```
 
 
-## OCS-Inventory Agent (Linux)
+## OCS-Inventory Agent (Linux) ✅ ![](https://progress-bar.dev/100/)
 
 Descargar y convertir en ejecutable:
 
@@ -47,7 +47,7 @@ Ejecutar:
 ```
 
 
-## ISC-DHCP Server
+## ISC-DHCP Server ❌ ![](https://progress-bar.dev/30/)
 
 Descargar y convertir en ejecutable:
 
