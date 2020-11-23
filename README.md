@@ -68,12 +68,11 @@ Ejecutar:
 Descargar y convertir en ejecutable:
 
 ```bash
-curl -O https://raw.githubusercontent.com/tronco-chan/silver-broccoli/main/XXXX.sh
-chmod +x instalador_dhcp.sh
+
 ```
 Ejecutar:
 
 ```sh
-./XXXX.sh
+
 ```
 ToDo: fix acrobat installer
