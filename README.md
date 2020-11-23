@@ -17,7 +17,7 @@ Ejecutar:
 ```
 
 
-## Suite ELK (Elasticsearch Logstash Kibana
+## OpenVPN
 
 Descargar y convertir en ejecutable:
 
@@ -33,7 +33,7 @@ Ejecutar:
 
 
 
-## Suite ELK (Elasticsearch Logstash Kibana
+## ISC-DHCP Server
 
 Descargar y convertir en ejecutable:
 
