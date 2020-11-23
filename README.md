@@ -63,7 +63,7 @@ Ejecutar:
 ./instalador_dhcp.sh
 ```
 
-## Startup Installer ✅ ![](https://progress-bar.dev/99/)
+## Startup Installer (Win) ✅ ![](https://progress-bar.dev/99/)
 
 Descargar y convertir en ejecutable:
 
