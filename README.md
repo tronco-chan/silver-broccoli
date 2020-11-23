@@ -31,6 +31,8 @@ Ejecutar:
 ./instalador_openvpn.sh
 ```
 
+ToDo: eliminar funciones innecesarias
+
 
 ## OCS-Inventory Agent (Linux) ✅ ![](https://progress-bar.dev/100/)
 
@@ -60,3 +62,18 @@ Ejecutar:
 ```sh
 ./instalador_dhcp.sh
 ```
+
+## Startup Installer ✅ ![](https://progress-bar.dev/99/)
+
+Descargar y convertir en ejecutable:
+
+```bash
+curl -O https://raw.githubusercontent.com/tronco-chan/silver-broccoli/main/XXXX.sh
+chmod +x instalador_dhcp.sh
+```
+Ejecutar:
+
+```sh
+./XXXX.sh
+```
+ToDo: fix acrobat installer
