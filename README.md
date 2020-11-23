@@ -2,7 +2,7 @@
 
 Instaladores automatizados
 
-## Suite ELK (Elasticsearch Logstash Kibana) ✅ ![](https://progress-bar.dev/99/?title=Ubuntu) ![](https://progress-bar.dev/40/?title=Centos)
+## Suite ELK (Elasticsearch Logstash Kibana) ✅ ![](https://progress-bar.dev/85/?title=Ubuntu) ![](https://progress-bar.dev/40/?title=Centos)
 
 Descargar y convertir en ejecutable:
 
