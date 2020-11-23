@@ -118,8 +118,13 @@ function modificarSeguridadElastic(){
 		echo "xpack.security.systemctl enabled: true" >> /etc/elasticsearch/elasticsearch.yml
 		echo "Se inicia Elasticsearch para proceder al cambio de contraseñas"
 		systemctl restart elasticsearch.service
+
+		##
+		## No se pregunta MODOCONTRASENAS, faltan los echo?
+		##
+
 		read -e MODOCONTRASENAS
-		if [[ MODOCONTRASENAS == 1 ]]; then
+		if [[ $MODOCONTRASENAS == 1 ]]; then
 			echo "Se habilita el modo interactivo."
 			echo " Se te solicitará que introduzcas las contraseñas manualmente"
 			echo "Las contraseñas generadas se almacenarán en $PWD"
