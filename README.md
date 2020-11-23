@@ -22,13 +22,13 @@ Ejecutar:
 Descargar y convertir en ejecutable:
 
 ```bash
-curl -O https://raw.githubusercontent.com/tronco-chan/silver-broccoli/main/instalador_ELK.sh
-chmod +x instalador_ELK.sh
+curl -O https://raw.githubusercontent.com/tronco-chan/silver-broccoli/main/instalador_openvpn.sh
+chmod +x instalador_openvpn.sh
 ```
 Ejecutar:
 
 ```sh
-./instalador_ELK.sh
+./instalador_openvpn.sh
 ```
 
 
@@ -37,13 +37,13 @@ Ejecutar:
 Descargar y convertir en ejecutable:
 
 ```bash
-curl -O https://raw.githubusercontent.com/tronco-chan/silver-broccoli/main/instalador_ELK.sh
-chmod +x instalador_ELK.sh
+curl -O https://raw.githubusercontent.com/tronco-chan/silver-broccoli/main/instalador_OCSagent.sh
+chmod +x instalador_OCSagent.sh
 ```
 Ejecutar:
 
 ```sh
-./instalador_ELK.sh
+./instalador_OCSagent.sh
 ```
 
 
@@ -52,11 +52,11 @@ Ejecutar:
 Descargar y convertir en ejecutable:
 
 ```bash
-curl -O https://raw.githubusercontent.com/tronco-chan/silver-broccoli/main/instalador_ELK.sh
-chmod +x instalador_ELK.sh
+curl -O https://raw.githubusercontent.com/tronco-chan/silver-broccoli/main/instalador_dhcp.sh
+chmod +x instalador_dhcp.sh
 ```
 Ejecutar:
 
 ```sh
-./instalador_ELK.sh
+./instalador_dhcp.sh
 ```
