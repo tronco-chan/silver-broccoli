@@ -1,5 +1,7 @@
 #!/bin/bash
 
+### V1.0 Traducido y tweaks varios
+
 # Secure OpenVPN server installer for Debian, Ubuntu, CentOS, Amazon Linux 2, Fedora and Arch Linux
 # https://github.com/angristan/openvpn-install
 

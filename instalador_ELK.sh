@@ -112,7 +112,7 @@
 		echo "De ser así, se modificarán las contraseñas de los usuarios predeterminados:"
 		CONTINUAR='false'
 		read -e CONTINUAR
-		if [[ CONTINUAR =~ 'y' ]]; then
+		if [[ $CONTINUAR =~ 'y' ]]; then
 			echo "Se habilita xpack.security"
 			cp /etc/elasticsearch/elasticsearch.yml /etc/elasticsearch/elasticsearch.yml.backup$(date +%d)
 			echo "xpack.security.systemctl enabled: true" >> /etc/elasticsearch/elasticsearch.yml
@@ -183,13 +183,13 @@
 			until [[ $CONTINUAR =~ (y|n) ]]; do
 				read -rp "Deseas cambiar el puerto HTTP (por defecto 9200)? [y/n]: " -e CONTINUAR
 			done
-			if [[ CONTINUAR =~ 'y' ]]; then
+			if [[ $CONTINUAR =~ 'y' ]]; then
 				Puerto_Elasticsearch='NoDefinido'
 				until [[ $Puerto_Elasticsearch =~ ^[0-9]{0,5}$ ]]; do
 					read -rp "Introduce un puerto válido --> " -e Puerto_Elasticsearch
 				done
 				sed -i "s|#http.port: 9200$|http.port: $Puerto_Elasticsearch|" /etc/elasticsearch/elasticsearch.yml
-			elif [[ CONTINUAR =~ 'n' ]]; then
+			elif [[ $CONTINUAR =~ 'n' ]]; then
 					echo "Se continua la instalación con los valores predeterminados"
 			fi
 			modificarSeguridadElastic
