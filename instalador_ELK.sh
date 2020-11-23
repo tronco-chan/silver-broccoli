@@ -3,9 +3,12 @@
 	##Script de instalación de ELK (Elasticsearch, Kibana, Logstash y Filebeat)                            ##
 	##Fecha: 26/10/2020                                                                                    ##
 	##Versión 1.0:  Permite la instalacion simple de todos los programas antes indicados                   ##
-	##				Si la instalación de todos los componentes se hace en una misma máquina                      ##
-	##				queda una versión completamente operativa. Si se instala en diferentes máquinas              ##
-	##				es necesario modificar la configuración manualmente.                                         ##
+	##        Si la instalación de todos los componentes se hace en una misma máquina                      ##
+	##        queda una versión completamente operativa. Si se instala en diferentes máquinas              ##
+	##        es necesario modificar la configuración manualmente.                                         ##
+	##Fecha: 23/11/2020                                                                                    ##
+	##Versión 1.1: Se añaden opciones para Centos                                                          ##
+	##                                                                                                     ##
 	##Autores:                                                                                             ##
 	##			Luis Mera Castro																		                                           ##
 	##			Rubén Míguez Bouzas										                                                         ##
@@ -59,8 +62,18 @@
 					fi
 				fi
 			preguntasInstalacion
+		else
+			echo "Tu sistema operativo no es Ubuntu, en caso de que sea Centos puedes continuar desde aquí. Pulsa [Y]"
+			CONTINUAR = 'false'
+			until [[ $CONTINUAR =~ (y|n) ]]; do
+				read -rp "Continuar? [y/n]: " -e CONTINUAR
+			done
+			if [[ $CONTINUAR == "n" ]]; then
+				exit 1
+			fi
+			OS="centos"
+			preguntasInstalacion
 		fi
-
 	}
 
 
@@ -84,7 +97,7 @@
 		fi
 	}
 
-	function andirRepositorios() {
+	function anadirRepositorios() {
 		if ls /etc/apt/sources.list.d | grep elastic > /dev/null; then
 			echo "Ya tienes configurados los repositorios de elastic"
 		else
@@ -142,7 +155,7 @@
 	function instalarElasticsearch(){
 		anadirClavePGP
 		anadirPaqueteTransport
-		andirRepositorios
+		anadirRepositorios
 		if dpkg -l | grep elastic > /dev/null; then
 			echo "Elasticsearch ya está instalado en tu sistema."
 			echo "No se continúa con la instalación"
@@ -191,7 +204,7 @@
 	function instalarKibana(){
 		anadirClavePGP
 		anadirPaqueteTransport
-		andirRepositorios
+		anadirRepositorios
 		if dpkg -l | grep kibana > /dev/null; then
 			echo "Kibana ya está instalado en tu sistema."
 			echo "No se continúa con la instalación"
@@ -214,7 +227,7 @@
 		function instalarLogstash(){
 		anadirClavePGP
 		anadirPaqueteTransport
-		andirRepositorios
+		anadirRepositorios
 		if dpkg -l | grep logstash > /dev/null; then
 			echo "logstash ya está instalado en tu sistema."
 			echo "No se continúa con la instalación"
@@ -237,76 +250,150 @@
 		function instalarFilebeat(){
 			anadirClavePGP
 			anadirPaqueteTransport
-			andirRepositorios
-			if dpkg -l | grep filebeat > /dev/null; then
-				echo "Filebeat ya está instalado en tu sistema."
-				echo "No se continúa con la instalación"
-			else
-				apt update && apt install filebeat
-				cp /etc/filebeat/filebeat.yml /etc/filebeat/filebeat.yml.backup$(date +%d)
-				sudo systemctl daemon-reload
-				sudo systemctl enable filebeat.service
-				echo "Se ha instalado filebeat y se ha habilitado en System-D"
-				echo "Para iniciar/parar el servicio basta con utilizar"
-				echo "systemctl [start | stop] filebeat.service"
-				echo "A modo prueba se va a instalar el módulo System de filebeat para monitorizar el sistema"
-				filebeat modules enable system
-				filebeat setup
-				echo "Para continuar la configuración, es necesario editar manualmente el fichero:"
-				echo "sudo nano /etc/filebeat/filebeat.yml"
-				systemctl start filebeat.service
+			anadirRepositorios
+			if [[ OS="ubuntu" ]]; then
+				#statements
+				if dpkg -l | grep filebeat > /dev/null; then
+					echo "Filebeat ya está instalado en tu sistema."
+					echo "No se continúa con la instalación"
+				else
+					apt update && apt install filebeat
+					cp /etc/filebeat/filebeat.yml /etc/filebeat/filebeat.yml.backup$(date +%d)
+					sudo systemctl daemon-reload
+					sudo systemctl enable filebeat.service
+					echo "Se ha instalado filebeat y se ha habilitado en System-D"
+					echo "Para iniciar/parar el servicio basta con utilizar"
+					echo "systemctl [start | stop] filebeat.service"
+					echo "A modo prueba se va a instalar el módulo System de filebeat para monitorizar el sistema"
+					filebeat modules enable system
+					filebeat setup
+					echo "Para continuar la configuración, es necesario editar manualmente el fichero:"
+					echo "sudo nano /etc/filebeat/filebeat.yml"
+					systemctl start filebeat.service
+				fi
+			elif [[ OS="centos" ]]; then
+				#statements
+				if rpm -qa | grep > /dev/null; then
+					echo "Filebeat ya está instalado en tu sistema."
+					echo "No se continúa con la instalación"
+				else
+					yum install filebeat
+					cp /etc/filebeat/filebeat.yml /etc/filebeat/filebeat.yml.backup$(date +%d)
+					sudo systemctl daemon-reload || true
+					sudo systemctl enable filebeat.service || sudo chkconfig --add filebeat
+					echo "Se ha instalado filebeat y se ha habilitado en System-D"
+					echo "Para iniciar/parar el servicio basta con utilizar"
+					echo "systemctl [start | stop] filebeat.service"
+					echo "A modo prueba se va a instalar el módulo System de filebeat para monitorizar el sistema"
+					filebeat modules enable system
+					filebeat setup
+					echo "Para continuar la configuración, es necesario editar manualmente el fichero:"
+					echo "sudo nano /etc/filebeat/filebeat.yml"
+					systemctl start filebeat.service || service filebeat start
 			fi
 		}
 
 	function desinstalarKibana() {
-		apt purge kibana
-		ELIMINARFICHEROS='false'
-		until [[ $ELIMINARFICHEROS =~ (y|n) ]]; do
-			read -rp "Eliminar ficheros de datos de Kibana /var/lib? [y/n]: " -e ELIMINARFICHEROS
-		done
-		if [[ $ELIMINARFICHEROS == "y" ]]; then
-			rm -rf /var/lib/kibana
-		else
-			continue
+		if [[ OS="ubuntu" ]]; then
+			apt purge kibana
+			ELIMINARFICHEROS='false'
+			until [[ $ELIMINARFICHEROS =~ (y|n) ]]; do
+				read -rp "Eliminar ficheros de datos de Kibana /var/lib? [y/n]: " -e ELIMINARFICHEROS
+			done
+			if [[ $ELIMINARFICHEROS == "y" ]]; then
+				rm -rf /var/lib/kibana
+			else
+				continue
+			fi
+		elif [[ OS="centos" ]]; then
+			yum remove kibana
+			ELIMINARFICHEROS='false'
+			until [[ $ELIMINARFICHEROS =~ (y|n) ]]; do
+				read -rp "Eliminar ficheros de datos de Kibana /var/lib? [y/n]: " -e ELIMINARFICHEROS
+			done
+			if [[ $ELIMINARFICHEROS == "y" ]]; then
+				rm -rf /var/lib/kibana
+			else
+				continue
+			fi
 		fi
 	}
 
 	function desinstalarLogstash() {
-		apt purge logstash
-		ELIMINARFICHEROS='false'
-		until [[ $ELIMINARFICHEROS =~ (y|n) ]]; do
-		read -rp "Eliminar ficheros de datos de LogsStash /var/lib? [y/n]: " -e ELIMINARFICHEROS
-		done
-		if [[ $ELIMINARFICHEROS == "y" ]]; then
-			rm -rf /var/lib/logstash
-		else
-			continue
+		if [[ OS="ubuntu" ]]; then
+			apt purge logstash
+			ELIMINARFICHEROS='false'
+			until [[ $ELIMINARFICHEROS =~ (y|n) ]]; do
+			read -rp "Eliminar ficheros de datos de LogsStash /var/lib? [y/n]: " -e ELIMINARFICHEROS
+			done
+			if [[ $ELIMINARFICHEROS == "y" ]]; then
+				rm -rf /var/lib/logstash
+			else
+				continue
+			fi
+		elif [[ OS="centos" ]]; then
+			yum remove logstash
+			ELIMINARFICHEROS='false'
+			until [[ $ELIMINARFICHEROS =~ (y|n) ]]; do
+			read -rp "Eliminar ficheros de datos de LogsStash /var/lib? [y/n]: " -e ELIMINARFICHEROS
+			done
+			if [[ $ELIMINARFICHEROS == "y" ]]; then
+				rm -rf /var/lib/logstash
+			else
+				continue
+			fi
 		fi
 	}
 
 	function desinstalarElasticsearch() {
- 		apt purge elasticsearch
- 		ELIMINARFICHEROS='false'
-		until [[ $ELIMINARFICHEROS =~ (y|n) ]]; do
-		read -rp "Eliminar ficheros de datos de Elasticsearch en/var/lib? [y/n]: " -e ELIMINARFICHEROS
-		done
-		if [[ $ELIMINARFICHEROS == "y" ]]; then
-			rm -rf /var/lib/elasticsearch
-		else
-			continue
+		if OS="ubuntu"
+	 		apt purge elasticsearch
+	 		ELIMINARFICHEROS='false'
+			until [[ $ELIMINARFICHEROS =~ (y|n) ]]; do
+			read -rp "Eliminar ficheros de datos de Elasticsearch en/var/lib? [y/n]: " -e ELIMINARFICHEROS
+			done
+			if [[ $ELIMINARFICHEROS == "y" ]]; then
+				rm -rf /var/lib/elasticsearch
+			else
+				continue
+			fi
+		elif [[ OS="centos" ]]; then
+			yum remove elasticsearch
+			ELIMINARFICHEROS='false'
+			until [[ $ELIMINARFICHEROS =~ (y|n) ]]; do
+			read -rp "Eliminar ficheros de datos de Elasticsearch en/var/lib? [y/n]: " -e ELIMINARFICHEROS
+			done
+			if [[ $ELIMINARFICHEROS == "y" ]]; then
+				rm -rf /var/lib/elasticsearch
+			else
+				continue
+			fi
 		fi
 	}
 
 	function desinstalarFilebeat() {
-		apt purge filebeat
- 		ELIMINARFICHEROS='false'
-		until [[ $ELIMINARFICHEROS =~ (y|n) ]]; do
-		read -rp "Eliminar ficheros de datos de Filebeat /var/lib? [y/n]: " -e ELIMINARFICHEROS
-		done
-		if [[ $ELIMINARFICHEROS == "y" ]]; then
-			rm -rf /var/lib/filbeat
-		else
-			continue
+		if OS="ubuntu"
+			apt purge filebeat
+	 		ELIMINARFICHEROS='false'
+			until [[ $ELIMINARFICHEROS =~ (y|n) ]]; do
+			read -rp "Eliminar ficheros de datos de Filebeat /var/lib? [y/n]: " -e ELIMINARFICHEROS
+			done
+			if [[ $ELIMINARFICHEROS == "y" ]]; then
+				rm -rf /var/lib/filbeat
+			else
+				continue
+			fi
+		elif OS="centos"
+			yum remove filebeat
+			ELIMINARFICHEROS='false'
+			until [[ $ELIMINARFICHEROS =~ (y|n) ]]; do
+			read -rp "Eliminar ficheros de datos de Filebeat /var/lib? [y/n]: " -e ELIMINARFICHEROS
+			done
+			if [[ $ELIMINARFICHEROS == "y" ]]; then
+				rm -rf /var/lib/filbeat
+			else
+				continue
+			fi
 		fi
 	}
 
