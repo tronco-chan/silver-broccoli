@@ -53,7 +53,7 @@
 				if [[ $MAJOR_UBUNTU_VERSION -lt 16 ]]; then
 					echo "⚠️ Este script no está probado en tu versión de Ubuntu. ¿Deseas continuar?"
 					echo ""
-					CONTINUAR = 'false'
+					CONTINUAR='false'
 					until [[ $CONTINUAR =~ (y|n) ]]; do
 						read -rp "Continuar? [y/n]: " -e CONTINUAR
 					done
@@ -64,7 +64,7 @@
 			preguntasInstalacion
 		else
 			echo "Tu sistema operativo no es Ubuntu, en caso de que sea Centos puedes continuar desde aquí. Pulsa [Y]"
-			CONTINUAR = 'false'
+			CONTINUAR='false'
 			until [[ $CONTINUAR =~ (y|n) ]]; do
 				read -rp "Continuar? [y/n]: " -e CONTINUAR
 			done
@@ -161,7 +161,7 @@
 			echo "No se continúa con la instalación"
 		else
 			apt update && apt install elasticsearch
-			cp /etc/elasticsearch/elasticsearch.yml /etc/elasticsearch/elasticsearch.yml.backup$(date +%d)
+			cp /etc/elasticsearch/elasticsearch.yml /etc/elasticsearch/elasticsearch.yml.backup$(date+%d)
 			systemctl daemon-reload
 			systemctl enable elasticsearch.service
 			CONTINUAR='false'
@@ -251,7 +251,7 @@
 			anadirClavePGP
 			anadirPaqueteTransport
 			anadirRepositorios
-			if [[ OS="ubuntu" ]]; then
+			if [[ $OS = "ubuntu" ]]; then
 				#statements
 				if dpkg -l | grep filebeat > /dev/null; then
 					echo "Filebeat ya está instalado en tu sistema."
@@ -271,7 +271,7 @@
 					echo "sudo nano /etc/filebeat/filebeat.yml"
 					systemctl start filebeat.service
 				fi
-			elif [[ OS="centos" ]]; then
+			elif [[ $OS = "centos" ]]; then
 				#statements
 				if rpm -qa | grep > /dev/null; then
 					echo "Filebeat ya está instalado en tu sistema."
@@ -290,11 +290,12 @@
 					echo "Para continuar la configuración, es necesario editar manualmente el fichero:"
 					echo "sudo nano /etc/filebeat/filebeat.yml"
 					systemctl start filebeat.service || service filebeat start
+				fi
 			fi
 		}
 
 	function desinstalarKibana() {
-		if [[ OS="ubuntu" ]]; then
+		if [[ $OS = "ubuntu" ]]; then
 			apt purge kibana
 			ELIMINARFICHEROS='false'
 			until [[ $ELIMINARFICHEROS =~ (y|n) ]]; do
@@ -303,9 +304,9 @@
 			if [[ $ELIMINARFICHEROS == "y" ]]; then
 				rm -rf /var/lib/kibana
 			else
-				continue
+				return
 			fi
-		elif [[ OS="centos" ]]; then
+		elif [[ $OS = "centos" ]]; then
 			yum remove kibana
 			ELIMINARFICHEROS='false'
 			until [[ $ELIMINARFICHEROS =~ (y|n) ]]; do
@@ -314,13 +315,13 @@
 			if [[ $ELIMINARFICHEROS == "y" ]]; then
 				rm -rf /var/lib/kibana
 			else
-				continue
+				return
 			fi
 		fi
 	}
 
 	function desinstalarLogstash() {
-		if [[ OS="ubuntu" ]]; then
+		if [[ $OS = "ubuntu" ]]; then
 			apt purge logstash
 			ELIMINARFICHEROS='false'
 			until [[ $ELIMINARFICHEROS =~ (y|n) ]]; do
@@ -329,9 +330,9 @@
 			if [[ $ELIMINARFICHEROS == "y" ]]; then
 				rm -rf /var/lib/logstash
 			else
-				continue
+				return
 			fi
-		elif [[ OS="centos" ]]; then
+		elif [[ $OS = "centos" ]]; then
 			yum remove logstash
 			ELIMINARFICHEROS='false'
 			until [[ $ELIMINARFICHEROS =~ (y|n) ]]; do
@@ -340,13 +341,13 @@
 			if [[ $ELIMINARFICHEROS == "y" ]]; then
 				rm -rf /var/lib/logstash
 			else
-				continue
+				return
 			fi
 		fi
 	}
 
 	function desinstalarElasticsearch() {
-		if OS="ubuntu"
+		if [[ $OS = "ubuntu" ]]; then
 	 		apt purge elasticsearch
 	 		ELIMINARFICHEROS='false'
 			until [[ $ELIMINARFICHEROS =~ (y|n) ]]; do
@@ -355,9 +356,9 @@
 			if [[ $ELIMINARFICHEROS == "y" ]]; then
 				rm -rf /var/lib/elasticsearch
 			else
-				continue
+				return
 			fi
-		elif [[ OS="centos" ]]; then
+		elif [[ $OS = "centos" ]]; then
 			yum remove elasticsearch
 			ELIMINARFICHEROS='false'
 			until [[ $ELIMINARFICHEROS =~ (y|n) ]]; do
@@ -366,13 +367,13 @@
 			if [[ $ELIMINARFICHEROS == "y" ]]; then
 				rm -rf /var/lib/elasticsearch
 			else
-				continue
+				return
 			fi
 		fi
 	}
 
 	function desinstalarFilebeat() {
-		if OS="ubuntu"
+		if [[ $OS = "ubuntu" ]]; then
 			apt purge filebeat
 	 		ELIMINARFICHEROS='false'
 			until [[ $ELIMINARFICHEROS =~ (y|n) ]]; do
@@ -381,9 +382,9 @@
 			if [[ $ELIMINARFICHEROS == "y" ]]; then
 				rm -rf /var/lib/filbeat
 			else
-				continue
+				return
 			fi
-		elif OS="centos"
+		elif [[ $OS = "centos" ]]; then
 			yum remove filebeat
 			ELIMINARFICHEROS='false'
 			until [[ $ELIMINARFICHEROS =~ (y|n) ]]; do
@@ -392,7 +393,7 @@
 			if [[ $ELIMINARFICHEROS == "y" ]]; then
 				rm -rf /var/lib/filbeat
 			else
-				continue
+				return
 			fi
 		fi
 	}
