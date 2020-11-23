@@ -2,7 +2,7 @@
 
 Instaladores automatizados
 
-## Suite ELK (Elasticsearch Logstash Kibana
+## Suite ELK (Elasticsearch Logstash Kibana)
 
 Descargar y convertir en ejecutable:
 
