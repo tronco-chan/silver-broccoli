@@ -22,6 +22,15 @@ function isRoot() {
 	if [ "$EUID" -ne 0 ]; then
 		return 1
 	fi
+	updatesinprogress
+}
+
+#comprobar que no haya instalaciones en proceso
+function updatesinprogress() {
+	dpkg -i /dev/zero 2>/dev/null
+	if [ "$?" -eq 2 ]; then
+	    echo "/var/lib/dpkg está bloqueado. Termina de actualizar tu sistema y vuelve a ejecutar el script"
+	fi
 	seleccionarOS
 }
 
