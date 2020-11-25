@@ -79,30 +79,67 @@ function checkOS() {
 
 function anadirClavePGP() {
 	echo "Comprobando claves PGP de elasttic"
-	if apt-key list | grep -q "elastic"; then
-		echo "Claves PGP correctamente configuradas"
-	else
-		echo "Claves PGP no configuradas, se añaden"
-		wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -
+	if [[ $OS="ubuntu" ]]; then
+		if apt-key list | grep -q "elastic"; then
+			echo "Claves PGP correctamente configuradas"
+		else
+			echo "Claves PGP no configuradas, se añaden"
+			wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -
+		fi
+	elif [[ $OS="centos" ]]; then
+## falta el if para verificar si ya existe
+		rpm --import https://artifacts.elastic.co/GPG-KEY-elasticsearch
 	fi
 }
 
 function anadirPaqueteTransport(){
 	echo "Comprobando instalación del paquete apt-transport-https"
-	if dpkg -s | grep "apt-transport-https" > /dev/null; then
-		echo "Paquete ya instalado"
-	else
-		echo "Paquete no instalado. Se instala"
-		sudo apt install apt-transport-https
+	if [[ $OS="ubuntu" ]]; then
+		if dpkg -s | grep "apt-transport-https" > /dev/null; then
+			echo "Paquete ya instalado"
+		else
+			echo "Paquete no instalado. Se instala"
+			sudo apt install apt-transport-https
+		fi
+	elif [[ $OS="centos" ]]; then
+		echo "Centos no necesita apt-transport-https. Se continua con la instalacion."
+		# if dpkg -s | grep "apt-transport-https" > /dev/null; then
+		# 	echo "Paquete ya instalado"
+		# else
+		# 	echo "Paquete no instalado. Se instala"
+		# 	sudo yum install apt-transport-https
+		# fi
 	fi
 }
 
 function anadirRepositorios() {
-	if ls /etc/apt/sources.list.d/*elastic* > /dev/null; then
-		echo "Ya tienes configurados los repositorios de elastic"
-	else
-		echo "Añadiendo a repositorio"
-		echo "deb https://artifacts.elastic.co/packages/7.x/apt stable main" | sudo tee /etc/apt/sources.list.d/elastic-7.x.list
+	if [[ $OS="ubuntu" ]]; then
+		if ls /etc/apt/sources.list.d/*elastic* > /dev/null; then
+			echo "Ya tienes configurados los repositorios de elastic"
+		else
+			echo "Añadiendo a repositorio"
+			echo "deb https://artifacts.elastic.co/packages/7.x/apt stable main" | sudo tee /etc/apt/sources.list.d/elastic-7.x.list
+		fi
+	elif [[ $OS="centos" ]]; then
+		#buscar version alternativa al ls, no va a funcionar en centos
+		#temporalmente forzamos que vaya al else
+		temp="a"
+		#if [[ ls /etc/apt/sources.list.d/*elastic* > /dev/null ]]; then
+		if [[ $temp="b" ]]; then
+			echo "Ya tienes configurados los repositorios de elastic"
+		else
+			echo "Añadiendo a repositorio"
+			touch /etc/yum.repos.d/elasticsearch.repo
+			echo '[elasticsearch]' > /etc/yum.repos.d/elasticsearch.repo
+			echo 'name=Elasticsearch repository for 7.x packages' >> /etc/yum.repos.d/elasticsearch.repo
+			echo 'baseurl=https://artifacts.elastic.co/packages/7.x/yum' >> /etc/yum.repos.d/elasticsearch.repo
+			echo 'gpgcheck=1' >> /etc/yum.repos.d/elasticsearch.repo
+			echo 'gpgkey=https://artifacts.elastic.co/GPG-KEY-elasticsearch' >> /etc/yum.repos.d/elasticsearch.repo
+			echo 'enabled=0' >> /etc/yum.repos.d/elasticsearch.repo
+			echo 'autorefresh=1' >> /etc/yum.repos.d/elasticsearch.repo
+			echo 'type=rpm-md" > /etc/yum.repos.d/elasticsearch.repo' >> /etc/yum.repos.d/elasticsearch.repo
+			yum install --enablerepo=elasticsearch elasticsearch
+		fi
 	fi
 }
 
