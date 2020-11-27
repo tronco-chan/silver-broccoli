@@ -289,7 +289,7 @@ function instalarLogstash(){
 			systemctl daemon-reload
 			systemctl enable logstash.service
 			if [[ $IP_Elasticsearch -ne '' ]]; then
-				echo "Se modifica la configuración de kibana para que apunte a la IP y puertos indicados para Elasticsearch"
+				echo "Se modifica la configuración de Kibana para que apunte a la IP y puertos indicados para Elasticsearch"
 				sed -i "s|#elasticsearch.hosts: [\"http://localhost:9200\"]$|elasticsearch.hosts: [\"http://$IP_Elasticsearch:$Puerto_Elasticsearch\"]|" /etc/kibana/kibana.yml
 			fi
 			echo "Se ha instalado Logstash y se ha habilitado en System-D"
@@ -300,7 +300,7 @@ function instalarLogstash(){
 	elif [[ $OS=="centos" ]]; then
 		if [[ $OS=="asd" ]]; then
 			#if dpkg -l | grep logstash > /dev/null; then
-			echo "logstash ya está instalado en tu sistema."
+			echo "Logstash ya está instalado en tu sistema."
 			echo "No se continúa con la instalación"
 		else
 			yum install logstash
@@ -308,12 +308,12 @@ function instalarLogstash(){
 			systemctl daemon-reload || true
 			systemctl enable logstash.service || sudo chkconfig --add logstash
 			if [[ $IP_Elasticsearch -ne '' ]]; then
-				echo "Se modifica la configuración de kibana para que apunte a la IP y puertos indicados para Elasticsearch"
+				echo "Se modifica la configuración de Kibana para que apunte a la IP y puertos indicados para Elasticsearch"
 				sed -i "s|#elasticsearch.hosts: [\"http://localhost:9200\"]$|elasticsearch.hosts: [\"http://$IP_Elasticsearch:$Puerto_Elasticsearch\"]|" /etc/kibana/kibana.yml
 			fi
-			echo "Se ha instalado Logstash y se ha habilitado en System-D"
+			echo "Se ha instalado Logstash y se ha habilitado Chkconfig"
 			echo "Para iniciar/parar el servicio basta con utilizar"
-			echo "systemctl [start | stop] logstash.service"
+			echo "service logstash [start | stop]"
 			systemctl start logstash.service || service logstash start
 		fi
 	fi
@@ -323,7 +323,7 @@ function instalarFilebeat(){
 	anadirClavePGP
 	anadirPaqueteTransport
 	anadirRepositorios
-	if [[ $OS = "ubuntu" ]]; then
+	if [[ $OS=="ubuntu" ]]; then
 		#statements
 		if dpkg -l | grep filebeat > /dev/null; then
 			echo "Filebeat ya está instalado en tu sistema."
@@ -333,17 +333,17 @@ function instalarFilebeat(){
 			cp /etc/filebeat/filebeat.yml '/etc/filebeat/filebeat.yml.backup$(date +%d)'
 			sudo systemctl daemon-reload
 			sudo systemctl enable filebeat.service
-			echo "Se ha instalado filebeat y se ha habilitado en System-D"
+			echo "Se ha instalado Filebeat y se ha habilitado en System-D"
 			echo "Para iniciar/parar el servicio basta con utilizar"
 			echo "systemctl [start | stop] filebeat.service"
-			echo "A modo prueba se va a instalar el módulo System de filebeat para monitorizar el sistema"
+			echo "A modo prueba se va a instalar el módulo System de Filebeat para monitorizar el sistema"
 			filebeat modules enable system
 			filebeat setup
 			echo "Para continuar la configuración, es necesario editar manualmente el fichero:"
 			echo "sudo nano /etc/filebeat/filebeat.yml"
 			systemctl start filebeat.service
 		fi
-	elif [[ $OS = "centos" ]]; then
+	elif [[ $OS=="centos" ]]; then
 		#statements
 		if rpm -qa | grep > /dev/null; then
 			echo "Filebeat ya está instalado en tu sistema."
@@ -353,10 +353,10 @@ function instalarFilebeat(){
 			cp /etc/filebeat/filebeat.yml '/etc/filebeat/filebeat.yml.backup$(date +%d)'
 			sudo systemctl daemon-reload || true
 			sudo systemctl enable filebeat.service || sudo chkconfig --add filebeat
-			echo "Se ha instalado filebeat y se ha habilitado en System-D"
+			echo "Se ha instalado Filebeat y se ha habilitado con Chkconfig"
 			echo "Para iniciar/parar el servicio basta con utilizar"
-			echo "systemctl [start | stop] filebeat.service"
-			echo "A modo prueba se va a instalar el módulo System de filebeat para monitorizar el sistema"
+			echo "service filebeat.service [start | stop] "
+			echo "A modo prueba se va a instalar el módulo System de Filebeat para monitorizar el sistema"
 			filebeat modules enable system
 			filebeat setup
 			echo "Para continuar la configuración, es necesario editar manualmente el fichero:"
@@ -367,7 +367,7 @@ function instalarFilebeat(){
 }
 
 function desinstalarKibana() {
-	if [[ $OS = "ubuntu" ]]; then
+	if [[ $OS=="ubuntu" ]]; then
 		apt purge kibana
 		ELIMINARFICHEROS='false'
 		until [[ $ELIMINARFICHEROS =~ (y|n) ]]; do
@@ -378,7 +378,7 @@ function desinstalarKibana() {
 		else
 			return
 		fi
-	elif [[ $OS = "centos" ]]; then
+	elif [[ $OS=="centos" ]]; then
 		yum remove kibana
 		ELIMINARFICHEROS='false'
 		until [[ $ELIMINARFICHEROS =~ (y|n) ]]; do
@@ -393,7 +393,7 @@ function desinstalarKibana() {
 }
 
 function desinstalarLogstash() {
-	if [[ $OS = "ubuntu" ]]; then
+	if [[ $OS=="ubuntu" ]]; then
 		apt purge logstash
 		ELIMINARFICHEROS='false'
 		until [[ $ELIMINARFICHEROS =~ (y|n) ]]; do
@@ -404,7 +404,7 @@ function desinstalarLogstash() {
 		else
 			return
 		fi
-	elif [[ $OS = "centos" ]]; then
+	elif [[ $OS=="centos" ]]; then
 		yum remove logstash
 		ELIMINARFICHEROS='false'
 		until [[ $ELIMINARFICHEROS =~ (y|n) ]]; do
@@ -419,7 +419,7 @@ function desinstalarLogstash() {
 }
 
 function desinstalarElasticsearch() {
-	if [[ $OS = "ubuntu" ]]; then
+	if [[ $OS=="ubuntu" ]]; then
 		apt purge elasticsearch
 		ELIMINARFICHEROS='false'
 		until [[ $ELIMINARFICHEROS =~ (y|n) ]]; do
@@ -430,7 +430,7 @@ function desinstalarElasticsearch() {
 		else
 			return
 		fi
-	elif [[ $OS = "centos" ]]; then
+	elif [[ $OS=="centos" ]]; then
 		yum remove elasticsearch
 		ELIMINARFICHEROS='false'
 		until [[ $ELIMINARFICHEROS =~ (y|n) ]]; do
@@ -445,7 +445,7 @@ function desinstalarElasticsearch() {
 }
 
 function desinstalarFilebeat() {
-	if [[ $OS = "ubuntu" ]]; then
+	if [[ $OS=="ubuntu" ]]; then
 		apt purge filebeat
 		ELIMINARFICHEROS='false'
 		until [[ $ELIMINARFICHEROS =~ (y|n) ]]; do
@@ -456,7 +456,7 @@ function desinstalarFilebeat() {
 		else
 			return
 		fi
-	elif [[ $OS = "centos" ]]; then
+	elif [[ $OS=="centos" ]]; then
 		yum remove filebeat
 		ELIMINARFICHEROS='false'
 		until [[ $ELIMINARFICHEROS =~ (y|n) ]]; do
