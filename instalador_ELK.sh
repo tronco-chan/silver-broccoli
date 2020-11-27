@@ -79,14 +79,14 @@ function checkOS() {
 
 function anadirClavePGP() {
 	echo "Comprobando claves PGP de elasttic"
-	if [[ $OS="ubuntu" ]]; then
+	if [[ $OS=="ubuntu" ]]; then
 		if apt-key list | grep -q "elastic"; then
 			echo "Claves PGP correctamente configuradas"
 		else
 			echo "Claves PGP no configuradas, se añaden"
 			wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -
 		fi
-	elif [[ $OS="centos" ]]; then
+	elif [[ $OS=="centos" ]]; then
 ## falta el if para verificar si ya existe
 		rpm --import https://artifacts.elastic.co/GPG-KEY-elasticsearch
 	fi
@@ -94,14 +94,14 @@ function anadirClavePGP() {
 
 function anadirPaqueteTransport(){
 	echo "Comprobando instalación del paquete apt-transport-https"
-	if [[ $OS="ubuntu" ]]; then
+	if [[ $OS=="ubuntu" ]]; then
 		if dpkg -s | grep "apt-transport-https" > /dev/null; then
 			echo "Paquete ya instalado"
 		else
 			echo "Paquete no instalado. Se instala"
 			sudo apt install apt-transport-https
 		fi
-	elif [[ $OS="centos" ]]; then
+	elif [[ $OS=="centos" ]]; then
 		echo "Centos no necesita apt-transport-https. Se continua con la instalacion."
 		# if dpkg -s | grep "apt-transport-https" > /dev/null; then
 		# 	echo "Paquete ya instalado"
@@ -113,19 +113,18 @@ function anadirPaqueteTransport(){
 }
 
 function anadirRepositorios() {
-	if [[ $OS="ubuntu" ]]; then
+	if [[ $OS=="ubuntu" ]]; then
 		if ls /etc/apt/sources.list.d/*elastic* > /dev/null; then
 			echo "Ya tienes configurados los repositorios de elastic"
 		else
 			echo "Añadiendo a repositorio"
 			echo "deb https://artifacts.elastic.co/packages/7.x/apt stable main" | sudo tee /etc/apt/sources.list.d/elastic-7.x.list
 		fi
-	elif [[ $OS="centos" ]]; then
+	elif [[ $OS=="centos" ]]; then
 		#buscar version alternativa al ls, no va a funcionar en centos
 		#temporalmente forzamos que vaya al else
-		temp="a"
 		#if [[ ls /etc/apt/sources.list.d/*elastic* > /dev/null ]]; then
-		if [[ $temp="b" ]]; then
+		if [[ $OS=="asd" ]]; then
 			echo "Ya tienes configurados los repositorios de elastic"
 		else
 			echo "Añadiendo a repositorio"
@@ -186,11 +185,21 @@ function modificarSeguridadElastic(){
 }
 
 function instalarJava(){
-	if dpkg -l | grep java > /dev/null; then
-		echo "Java ya está instalado en tu sistema."
-		echo "No se continúa con la instalación"
-	else
-		apt install openjdk-8-jre-headless
+	if [[ $OS=="ubuntu" ]]; then
+		if dpkg -l | grep java > /dev/null; then
+			echo "Java ya está instalado en tu sistema."
+			echo "No se continúa con la instalación"
+		else
+			apt install openjdk-8-jre-headless
+		fi
+	elif [[ $OS=="centos" ]]; then
+		if [[ $OS=="asd" ]]; then
+		# if dpkg -l | grep java > /dev/null; then
+		 	echo "Java ya está instalado en tu sistema."
+	 		echo "No se continúa con la instalación"
+		else
+			yum install java-1.8.0-openjdk
+		fi
 	fi
 }
 
@@ -270,22 +279,43 @@ function instalarLogstash(){
 	anadirClavePGP
 	anadirPaqueteTransport
 	anadirRepositorios
-	if dpkg -l | grep logstash > /dev/null; then
-		echo "logstash ya está instalado en tu sistema."
-		echo "No se continúa con la instalación"
-	else
-		apt update && apt install logstash
-		cp /etc/logstash/logstash.yml '/etc/logstash/logstash.yml.backup$(date +%d)'
-		systemctl daemon-reload
-		systemctl enable logstash.service
-		if [[ $IP_Elasticsearch -ne '' ]]; then
-			echo "Se modifica la configuración de kibana para que apunte a la IP y puertos indicados para Elasticsearch"
-			sed -i "s|#elasticsearch.hosts: [\"http://localhost:9200\"]$|elasticsearch.hosts: [\"http://$IP_Elasticsearch:$Puerto_Elasticsearch\"]|" /etc/kibana/kibana.yml
+	if [[ $OS=="ubuntu" ]]; then
+		if dpkg -l | grep logstash > /dev/null; then
+			echo "logstash ya está instalado en tu sistema."
+			echo "No se continúa con la instalación"
+		else
+			apt update && apt install logstash
+			cp /etc/logstash/logstash.yml '/etc/logstash/logstash.yml.backup$(date +%d)'
+			systemctl daemon-reload
+			systemctl enable logstash.service
+			if [[ $IP_Elasticsearch -ne '' ]]; then
+				echo "Se modifica la configuración de kibana para que apunte a la IP y puertos indicados para Elasticsearch"
+				sed -i "s|#elasticsearch.hosts: [\"http://localhost:9200\"]$|elasticsearch.hosts: [\"http://$IP_Elasticsearch:$Puerto_Elasticsearch\"]|" /etc/kibana/kibana.yml
+			fi
+			echo "Se ha instalado Logstash y se ha habilitado en System-D"
+			echo "Para iniciar/parar el servicio basta con utilizar"
+			echo "systemctl [start | stop] logstash.service"
+			systemctl start logstash.service
 		fi
-		echo "Se ha instalado Logstash y se ha habilitado en System-D"
-		echo "Para iniciar/parar el servicio basta con utilizar"
-		echo "systemctl [start | stop] logstash.service"
-		systemctl start logstash.service
+	elif [[ $OS=="centos" ]]; then
+		if [[ $OS=="asd" ]]; then
+			#if dpkg -l | grep logstash > /dev/null; then
+			echo "logstash ya está instalado en tu sistema."
+			echo "No se continúa con la instalación"
+		else
+			yum install logstash
+			cp /etc/logstash/logstash.yml '/etc/logstash/logstash.yml.backup$(date +%d)'
+			systemctl daemon-reload || true
+			systemctl enable logstash.service || sudo chkconfig --add logstash
+			if [[ $IP_Elasticsearch -ne '' ]]; then
+				echo "Se modifica la configuración de kibana para que apunte a la IP y puertos indicados para Elasticsearch"
+				sed -i "s|#elasticsearch.hosts: [\"http://localhost:9200\"]$|elasticsearch.hosts: [\"http://$IP_Elasticsearch:$Puerto_Elasticsearch\"]|" /etc/kibana/kibana.yml
+			fi
+			echo "Se ha instalado Logstash y se ha habilitado en System-D"
+			echo "Para iniciar/parar el servicio basta con utilizar"
+			echo "systemctl [start | stop] logstash.service"
+			systemctl start logstash.service || service logstash start
+		fi
 	fi
 }
 
