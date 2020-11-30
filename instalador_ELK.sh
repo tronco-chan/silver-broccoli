@@ -79,14 +79,14 @@ function checkOS() {
 
 function anadirClavePGP() {
 	echo "Comprobando claves PGP de elasttic"
-	if [[ $OS=="ubuntu" ]]; then
+	if [[ $OS == "ubuntu" ]]; then
 		if apt-key list | grep -q "elastic"; then
 			echo "Claves PGP correctamente configuradas"
 		else
 			echo "Claves PGP no configuradas, se añaden"
 			wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -
 		fi
-	elif [[ $OS=="centos" ]]; then
+	elif [[ $OS == "centos" ]]; then
 ## falta el if para verificar si ya existe
 		rpm --import https://artifacts.elastic.co/GPG-KEY-elasticsearch
 	fi
@@ -94,14 +94,14 @@ function anadirClavePGP() {
 
 function anadirPaqueteTransport(){
 	echo "Comprobando instalación del paquete apt-transport-https"
-	if [[ $OS=="ubuntu" ]]; then
+	if [[ $OS == "ubuntu" ]]; then
 		if dpkg -s | grep "apt-transport-https" > /dev/null; then
 			echo "Paquete ya instalado"
 		else
 			echo "Paquete no instalado. Se instala"
 			sudo apt install apt-transport-https
 		fi
-	elif [[ $OS=="centos" ]]; then
+	elif [[ $OS == "centos" ]]; then
 		echo "Centos no necesita apt-transport-https. Se continua con la instalacion."
 		# if dpkg -s | grep "apt-transport-https" > /dev/null; then
 		# 	echo "Paquete ya instalado"
@@ -113,18 +113,18 @@ function anadirPaqueteTransport(){
 }
 
 function anadirRepositorios() {
-	if [[ $OS=="ubuntu" ]]; then
+	if [[ $OS == "ubuntu" ]]; then
 		if ls /etc/apt/sources.list.d/*elastic* > /dev/null; then
 			echo "Ya tienes configurados los repositorios de elastic"
 		else
 			echo "Añadiendo a repositorio"
 			echo "deb https://artifacts.elastic.co/packages/7.x/apt stable main" | sudo tee /etc/apt/sources.list.d/elastic-7.x.list
 		fi
-	elif [[ $OS=="centos" ]]; then
+	elif [[ $OS == "centos" ]]; then
 		#buscar version alternativa al ls, no va a funcionar en centos
 		#temporalmente forzamos que vaya al else
 		#if [[ ls /etc/apt/sources.list.d/*elastic* > /dev/null ]]; then
-		if [[ $OS=="asd" ]]; then
+		if [[ $OS == "asd" ]]; then
 			echo "Ya tienes configurados los repositorios de elastic"
 		else
 			echo "Añadiendo repositorio Elasticsearch"
@@ -204,15 +204,15 @@ function modificarSeguridadElastic(){
 }
 
 function instalarJava(){
-	if [[ $OS=="ubuntu" ]]; then
+	if [[ $OS == "ubuntu" ]]; then
 		if dpkg -l | grep java > /dev/null; then
 			echo "Java ya está instalado en tu sistema."
 			echo "No se continúa con la instalación"
 		else
 			apt install openjdk-8-jre-headless
 		fi
-	elif [[ $OS=="centos" ]]; then
-		if [[ $OS=="asd" ]]; then
+	elif [[ $OS == "centos" ]]; then
+		if [[ $OS == "asd" ]]; then
 		# if dpkg -l | grep java > /dev/null; then
 		 	echo "Java ya está instalado en tu sistema."
 	 		echo "No se continúa con la instalación"
@@ -226,7 +226,7 @@ function instalarElasticsearch(){
 	anadirClavePGP
 	anadirPaqueteTransport
 	anadirRepositorios
-	if [[ $OS=="ubuntu" ]]; then
+	if [[ $OS == "ubuntu" ]]; then
 		if dpkg -l | grep elastic > /dev/null; then
 			echo "Elasticsearch ya está instalado en tu sistema."
 			echo "No se continúa con la instalación"
@@ -270,8 +270,8 @@ function instalarElasticsearch(){
 			echo "Esta vez ya se inicia automaticamente. Espera unos instantes..."
 			systemctl start elasticsearch.service || service elasticsearch start
 		fi
-	elif [[ $OS=="centos" ]]; then
-		if [[ $OS=="asd" ]]; then
+	elif [[ $OS == "centos" ]]; then
+		if [[ $OS == "asd" ]]; then
 		# if dpkg -l | grep elastic > /dev/null; then
 		 	echo "Elasticsearch ya está instalado en tu sistema."
 		 	echo "No se continúa con la instalación"
@@ -322,7 +322,7 @@ function instalarKibana(){
 	anadirClavePGP
 	anadirPaqueteTransport
 	anadirRepositorios
-	if [[ $OS=="ubuntu" ]]; then
+	if [[ $OS == "ubuntu" ]]; then
 		if dpkg -l | grep kibana > /dev/null; then
 			echo "Kibana ya está instalado en tu sistema."
 			echo "No se continúa con la instalación"
@@ -340,8 +340,8 @@ function instalarKibana(){
 			echo "systemctl [start | stop] kibana.service"
 			systemctl start kibana.service || service kibana start
 		fi
-	elif [[ $OS=="centos" ]]; then
-		if [[ $OS=="asd" ]]; then
+	elif [[ $OS == "centos" ]]; then
+		if [[ $OS == "asd" ]]; then
 		# if dpkg -l | grep kibana > /dev/null; then
 			echo "Kibana ya está instalado en tu sistema."
 		 	echo "No se continúa con la instalación"
@@ -366,7 +366,7 @@ function instalarLogstash(){
 	anadirClavePGP
 	anadirPaqueteTransport
 	anadirRepositorios
-	if [[ $OS=="ubuntu" ]]; then
+	if [[ $OS == "ubuntu" ]]; then
 		if dpkg -l | grep logstash > /dev/null; then
 			echo "logstash ya está instalado en tu sistema."
 			echo "No se continúa con la instalación"
@@ -384,8 +384,8 @@ function instalarLogstash(){
 			echo "systemctl [start | stop] logstash.service"
 			systemctl start logstash.service || service logstash start
 		fi
-	elif [[ $OS=="centos" ]]; then
-		if [[ $OS=="asd" ]]; then
+	elif [[ $OS == "centos" ]]; then
+		if [[ $OS == "asd" ]]; then
 			#if dpkg -l | grep logstash > /dev/null; then
 			echo "Logstash ya está instalado en tu sistema."
 			echo "No se continúa con la instalación"
@@ -410,7 +410,7 @@ function instalarFilebeat(){
 	anadirClavePGP
 	anadirPaqueteTransport
 	anadirRepositorios
-	if [[ $OS=="ubuntu" ]]; then
+	if [[ $OS == "ubuntu" ]]; then
 		#statements
 		if dpkg -l | grep filebeat > /dev/null; then
 			echo "Filebeat ya está instalado en tu sistema."
@@ -430,7 +430,7 @@ function instalarFilebeat(){
 			echo "sudo nano /etc/filebeat/filebeat.yml"
 			systemctl start filebeat.service || service filebeat start
 		fi
-	elif [[ $OS=="centos" ]]; then
+	elif [[ $OS == "centos" ]]; then
 		#statements
 		if rpm -qa | grep > /dev/null; then
 			echo "Filebeat ya está instalado en tu sistema."
@@ -454,7 +454,7 @@ function instalarFilebeat(){
 }
 
 function desinstalarKibana() {
-	if [[ $OS=="ubuntu" ]]; then
+	if [[ $OS == "ubuntu" ]]; then
 		apt purge kibana
 		ELIMINARFICHEROS='false'
 		until [[ $ELIMINARFICHEROS =~ (y|n) ]]; do
@@ -465,7 +465,7 @@ function desinstalarKibana() {
 		else
 			return
 		fi
-	elif [[ $OS=="centos" ]]; then
+	elif [[ $OS == "centos" ]]; then
 		yum remove kibana
 		ELIMINARFICHEROS='false'
 		until [[ $ELIMINARFICHEROS =~ (y|n) ]]; do
@@ -480,7 +480,7 @@ function desinstalarKibana() {
 }
 
 function desinstalarLogstash() {
-	if [[ $OS=="ubuntu" ]]; then
+	if [[ $OS == "ubuntu" ]]; then
 		apt purge logstash
 		ELIMINARFICHEROS='false'
 		until [[ $ELIMINARFICHEROS =~ (y|n) ]]; do
@@ -491,7 +491,7 @@ function desinstalarLogstash() {
 		else
 			return
 		fi
-	elif [[ $OS=="centos" ]]; then
+	elif [[ $OS == "centos" ]]; then
 		yum remove logstash
 		ELIMINARFICHEROS='false'
 		until [[ $ELIMINARFICHEROS =~ (y|n) ]]; do
@@ -506,7 +506,7 @@ function desinstalarLogstash() {
 }
 
 function desinstalarElasticsearch() {
-	if [[ $OS=="ubuntu" ]]; then
+	if [[ $OS == "ubuntu" ]]; then
 		apt purge elasticsearch
 		ELIMINARFICHEROS='false'
 		until [[ $ELIMINARFICHEROS =~ (y|n) ]]; do
@@ -517,7 +517,7 @@ function desinstalarElasticsearch() {
 		else
 			return
 		fi
-	elif [[ $OS=="centos" ]]; then
+	elif [[ $OS == "centos" ]]; then
 		yum remove elasticsearch
 		ELIMINARFICHEROS='false'
 		until [[ $ELIMINARFICHEROS =~ (y|n) ]]; do
@@ -532,7 +532,7 @@ function desinstalarElasticsearch() {
 }
 
 function desinstalarFilebeat() {
-	if [[ $OS=="ubuntu" ]]; then
+	if [[ $OS == "ubuntu" ]]; then
 		apt purge filebeat
 		ELIMINARFICHEROS='false'
 		until [[ $ELIMINARFICHEROS =~ (y|n) ]]; do
@@ -543,7 +543,7 @@ function desinstalarFilebeat() {
 		else
 			return
 		fi
-	elif [[ $OS=="centos" ]]; then
+	elif [[ $OS == "centos" ]]; then
 		yum remove filebeat
 		ELIMINARFICHEROS='false'
 		until [[ $ELIMINARFICHEROS =~ (y|n) ]]; do
