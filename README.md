@@ -63,7 +63,7 @@ Ejecutar:
 ./instalador_dhcp.sh
 ```
 
-## Startup Installer (Win) ✅ ![](https://progress-bar.dev/99/)
+## Startup Installer (Win) ✅ ![](https://progress-bar.dev/100/)
 
 Descargar y convertir en ejecutable:
 
@@ -75,4 +75,3 @@ Ejecutar:
 ```sh
 
 ```
-ToDo: fix acrobat installer
