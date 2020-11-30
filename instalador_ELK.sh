@@ -127,7 +127,7 @@ function anadirRepositorios() {
 		if [[ $OS=="asd" ]]; then
 			echo "Ya tienes configurados los repositorios de elastic"
 		else
-			echo "Añadiendo a repositorio"
+			echo "Añadiendo repositorio Elasticsearch"
 			touch /etc/yum.repos.d/elasticsearch.repo
 			echo '[elasticsearch]' > /etc/yum.repos.d/elasticsearch.repo
 			echo 'name=Elasticsearch repository for 7.x packages' >> /etc/yum.repos.d/elasticsearch.repo
@@ -137,11 +137,32 @@ function anadirRepositorios() {
 			echo 'enabled=0' >> /etc/yum.repos.d/elasticsearch.repo
 			echo 'autorefresh=1' >> /etc/yum.repos.d/elasticsearch.repo
 			echo 'type=rpm-md" > /etc/yum.repos.d/elasticsearch.repo' >> /etc/yum.repos.d/elasticsearch.repo
-			yum install --enablerepo=elasticsearch elasticsearch
+			##
+			echo "Añadiendo repositorio Kibana"
+			touch /etc/yum.repos.d/kibana.repo
+			echo '[kibana-7.x]' > /etc/yum.repos.d/kibana.repo
+			echo 'name=Kibana repository for 7.x packages' >> /etc/yum.repos.d/kibana.repo
+			echo 'baseurl=https://artifacts.elastic.co/packages/7.x/yum' >> /etc/yum.repos.d/kibana.repo
+			echo 'gpgcheck=1' >> /etc/yum.repos.d/kibana.repo
+			echo 'gpgkey=https://artifacts.elastic.co/GPG-KEY-elasticsearch' >> /etc/yum.repos.d/kibana.repo
+			echo 'enabled=1' >> /etc/yum.repos.d/kibana.repo
+			echo 'autorefresh=1' >> /etc/yum.repos.d/kibana.repo
+			echo 'type=rpm-md' >> /etc/yum.repos.d/kibana.repo
+			##
+			echo "Añadiendo repositorio Logstash"
+			touch /etc/yum.repos.d/logstash.repo
+			echo '[logstash-7.x]' > /etc/yum.repos.d/logstash.repo
+			echo 'name=Elastic repository for 7.x packages' >> /etc/yum.repos.d/logstash.repo
+			echo 'baseurl=https://artifacts.elastic.co/packages/7.x/yum' >> /etc/yum.repos.d/logstash.repo
+			echo 'gpgcheck=1' >> /etc/yum.repos.d/logstash.repo
+			echo 'gpgkey=https://artifacts.elastic.co/GPG-KEY-elasticsearch' >> /etc/yum.repos.d/logstash.repo
+			echo 'enabled=1' >> /etc/yum.repos.d/logstash.repo
+			echo 'autorefresh=1' >> /etc/yum.repos.d/logstash.repo
+			echo 'type=rpm-md' >> /etc/yum.repos.d/logstash.repo
+
 		fi
 	fi
 }
-
 
 function modificarSeguridadElastic(){
 	echo "Quieres habilitar la seguridad avanzada en elastic? (gestión de usuarios en Kibana) [y/n]"
@@ -153,12 +174,10 @@ function modificarSeguridadElastic(){
 		cp /etc/elasticsearch/elasticsearch.yml '/etc/elasticsearch/elasticsearch.yml.backup$(date +%d)'
 		echo "xpack.security.systemctl enabled: true" >> /etc/elasticsearch/elasticsearch.yml
 		echo "Se inicia Elasticsearch para proceder al cambio de contraseñas"
-		systemctl restart elasticsearch.service
-
+		systemctl restart elasticsearch.service || service elasticsearch restart
 		##
-		## No se pregunta MODOCONTRASENAS, faltan los echo?
+		## Not defined yet
 		##
-
 		read -e MODOCONTRASENAS
 		if [[ $MODOCONTRASENAS == 1 ]]; then
 			echo "Se habilita el modo interactivo."
@@ -207,48 +226,95 @@ function instalarElasticsearch(){
 	anadirClavePGP
 	anadirPaqueteTransport
 	anadirRepositorios
-	if dpkg -l | grep elastic > /dev/null; then
-		echo "Elasticsearch ya está instalado en tu sistema."
-		echo "No se continúa con la instalación"
-	else
-		apt update && apt install elasticsearch
-		cp /etc/elasticsearch/elasticsearch.yml '/etc/elasticsearch/elasticsearch.yml.backup$(date+%d)'
-		systemctl daemon-reload
-		systemctl enable elasticsearch.service
-		CONTINUAR='false'
-		until [[ $CONTINUAR =~ (y|n) ]]; do
-			read -rp "Deseas cambiar la IP de elascticsearch (por defecto localhost)? [y/n]: " -e CONTINUAR
-		done
-		if [[ $CONTINUAR =~ 'y' ]]; then
-			IP_Elasticsearch='NoDefinida'
-			echo "$IP_Elasticsearch"
-			until [[ $IP_Elasticsearch =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; do
-				read -rp "Introduce una IP válida  --> " -e IP_Elasticsearch
+	if [[ $OS=="ubuntu" ]]; then
+		if dpkg -l | grep elastic > /dev/null; then
+			echo "Elasticsearch ya está instalado en tu sistema."
+			echo "No se continúa con la instalación"
+		else
+			apt update && apt install elasticsearch
+			cp /etc/elasticsearch/elasticsearch.yml '/etc/elasticsearch/elasticsearch.yml.backup$(date+%d)'
+			systemctl daemon-reload
+			systemctl enable elasticsearch.service
+			CONTINUAR='false'
+			until [[ $CONTINUAR =~ (y|n) ]]; do
+				read -rp "Deseas cambiar la IP de elascticsearch (por defecto localhost)? [y/n]: " -e CONTINUAR
 			done
-			sed -i "s|#network.host: 192.168.0.1$|network.host: $IP_Elasticsearch|" /etc/elasticsearch/elasticsearch.yml
-			sed -i "s|#|discovery.seed_hosts: ["127.0.0.1", "\[::1\]"\]|"
-		elif [[ $CONTINUAR =~ 'n' ]]; then
-			echo "Se continua la instalación con los valores predeterminados"
-		fi
-		CONTINUAR='false'
-		until [[ $CONTINUAR =~ (y|n) ]]; do
-			read -rp "Deseas cambiar el puerto HTTP (por defecto 9200)? [y/n]: " -e CONTINUAR
-		done
-		if [[ $CONTINUAR =~ 'y' ]]; then
-			Puerto_Elasticsearch='NoDefinido'
-			until [[ $Puerto_Elasticsearch =~ ^[0-9]{0,5}$ ]]; do
-				read -rp "Introduce un puerto válido --> " -e Puerto_Elasticsearch
+			if [[ $CONTINUAR =~ 'y' ]]; then
+				IP_Elasticsearch='NoDefinida'
+				echo "$IP_Elasticsearch"
+				until [[ $IP_Elasticsearch =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; do
+					read -rp "Introduce una IP válida  --> " -e IP_Elasticsearch
+				done
+				sed -i "s|#network.host: 192.168.0.1$|network.host: $IP_Elasticsearch|" /etc/elasticsearch/elasticsearch.yml
+				sed -i "s|#|discovery.seed_hosts: ["127.0.0.1", "\[::1\]"\]|"
+			elif [[ $CONTINUAR =~ 'n' ]]; then
+				echo "Se continua la instalación con los valores predeterminados"
+			fi
+			CONTINUAR='false'
+			until [[ $CONTINUAR =~ (y|n) ]]; do
+				read -rp "Deseas cambiar el puerto HTTP (por defecto 9200)? [y/n]: " -e CONTINUAR
 			done
-			sed -i "s|#http.port: 9200$|http.port: $Puerto_Elasticsearch|" /etc/elasticsearch/elasticsearch.yml
-		elif [[ $CONTINUAR =~ 'n' ]]; then
-			echo "Se continua la instalación con los valores predeterminados"
+			if [[ $CONTINUAR =~ 'y' ]]; then
+				Puerto_Elasticsearch='NoDefinido'
+				until [[ $Puerto_Elasticsearch =~ ^[0-9]{0,5}$ ]]; do
+					read -rp "Introduce un puerto válido --> " -e Puerto_Elasticsearch
+				done
+				sed -i "s|#http.port: 9200$|http.port: $Puerto_Elasticsearch|" /etc/elasticsearch/elasticsearch.yml
+			elif [[ $CONTINUAR =~ 'n' ]]; then
+				echo "Se continua la instalación con los valores predeterminados"
+			fi
+			modificarSeguridadElastic
+			echo "Se ha instalado Elasticsearch y se ha habilitado en System-D"
+			echo "Para iniciar/parar el servicio basta con utilizar"
+			echo "systemctl [start | stop] elasticsearch.service"
+			echo "Esta vez ya se inicia automaticamente. Espera unos instantes..."
+			systemctl start elasticsearch.service || service elasticsearch start
 		fi
-		modificarSeguridadElastic
-		echo "Se ha instalado Elasticsearch y se ha habilitado en System-D"
-		echo "Para iniciar/parar el servicio basta con utilizar"
-		echo "systemctl [start | stop] elasticsearch.service"
-		echo "Esta vez ya se inicia automaticamente. Espera unos instantes..."
-		systemctl start elasticsearch.service
+	elif [[ $OS=="centos" ]]; then
+		if [[ $OS=="asd" ]]; then
+		# if dpkg -l | grep elastic > /dev/null; then
+		 	echo "Elasticsearch ya está instalado en tu sistema."
+		 	echo "No se continúa con la instalación"
+		else
+		 	yum install --enablerepo=elasticsearch elasticsearch
+		 	cp /etc/elasticsearch/elasticsearch.yml '/etc/elasticsearch/elasticsearch.yml.backup$(date+%d)'
+		 	systemctl daemon-reload || true
+		 	systemctl enable elasticsearch.service || sudo chkconfig --add elasticsearch
+		 	CONTINUAR='false'
+		 	until [[ $CONTINUAR =~ (y|n) ]]; do
+		 		read -rp "Deseas cambiar la IP de elascticsearch (por defecto localhost)? [y/n]: " -e CONTINUAR
+		 	done
+		 	if [[ $CONTINUAR =~ 'y' ]]; then
+		 		IP_Elasticsearch='NoDefinida'
+		 		echo "$IP_Elasticsearch"
+		 		until [[ $IP_Elasticsearch =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; do
+		 			read -rp "Introduce una IP válida  --> " -e IP_Elasticsearch
+		 		done
+		 		sed -i "s|#network.host: 192.168.0.1$|network.host: $IP_Elasticsearch|" /etc/elasticsearch/elasticsearch.yml
+		 		sed -i "s|#|discovery.seed_hosts: ["127.0.0.1", "\[::1\]"\]|"
+		 	elif [[ $CONTINUAR =~ 'n' ]]; then
+		 		echo "Se continua la instalación con los valores predeterminados"
+		 	fi
+		 	CONTINUAR='false'
+		 	until [[ $CONTINUAR =~ (y|n) ]]; do
+		 		read -rp "Deseas cambiar el puerto HTTP (por defecto 9200)? [y/n]: " -e CONTINUAR
+		 	done
+		 	if [[ $CONTINUAR =~ 'y' ]]; then
+		 		Puerto_Elasticsearch='NoDefinido'
+		 		until [[ $Puerto_Elasticsearch =~ ^[0-9]{0,5}$ ]]; do
+		 			read -rp "Introduce un puerto válido --> " -e Puerto_Elasticsearch
+		 		done
+		 		sed -i "s|#http.port: 9200$|http.port: $Puerto_Elasticsearch|" /etc/elasticsearch/elasticsearch.yml
+		 	elif [[ $CONTINUAR =~ 'n' ]]; then
+		 		echo "Se continua la instalación con los valores predeterminados"
+		 	fi
+		 	modificarSeguridadElastic
+		 	echo "Se ha instalado Elasticsearch y se ha habilitado en System-D"
+		 	echo "Para iniciar/parar el servicio basta con utilizar"
+		 	echo "systemctl [start | stop] elasticsearch.service"
+		 	echo "Esta vez ya se inicia automaticamente. Espera unos instantes..."
+		 	systemctl start elasticsearch.service || service elasticsearch start
+		fi
 	fi
 }
 
@@ -256,22 +322,43 @@ function instalarKibana(){
 	anadirClavePGP
 	anadirPaqueteTransport
 	anadirRepositorios
-	if dpkg -l | grep kibana > /dev/null; then
-		echo "Kibana ya está instalado en tu sistema."
-		echo "No se continúa con la instalación"
-	else
-		apt update && apt install kibana
-		cp /etc/kibana/kibana.yml '/etc/kibana/kibana.yml.backup$(date +%d)'
-		sudo systemctl daemon-reload
-		sudo systemctl enable kibana.service
-		if [[ $IP_Elasticsearch -ne '' ]]; then
-			echo "Se modifica la configuración de kibana para que apunte a la IP y puertos indicados para Elasticsearch"
-			sed -i "s|#elasticsearch.hosts: [\"http://localhost:9200\"]$|elasticsearch.hosts: [\"http://IP_Elasticsearch:Puerto_Elasticsearch\"]|" /etc/kibana/kibana.yml
+	if [[ $OS=="ubuntu" ]]; then
+		if dpkg -l | grep kibana > /dev/null; then
+			echo "Kibana ya está instalado en tu sistema."
+			echo "No se continúa con la instalación"
+		else
+			apt update && apt install kibana
+			cp /etc/kibana/kibana.yml '/etc/kibana/kibana.yml.backup$(date +%d)'
+			sudo systemctl daemon-reload
+			sudo systemctl enable kibana.service
+			if [[ $IP_Elasticsearch -ne '' ]]; then
+				echo "Se modifica la configuración de kibana para que apunte a la IP y puertos indicados para Elasticsearch"
+				sed -i "s|#elasticsearch.hosts: [\"http://localhost:9200\"]$|elasticsearch.hosts: [\"http://IP_Elasticsearch:Puerto_Elasticsearch\"]|" /etc/kibana/kibana.yml
+			fi
+			echo "Se ha instalado kibana y se ha habilitado en System-D"
+			echo "Para iniciar/parar el servicio basta con utilizar"
+			echo "systemctl [start | stop] kibana.service"
+			systemctl start kibana.service || service kibana start
 		fi
-		echo "Se ha instalado kibana y se ha habilitado en System-D"
-		echo "Para iniciar/parar el servicio basta con utilizar"
-		echo "systemctl [start | stop] elasticsearch.service"
-		systemctl start kibana.service
+	elif [[ $OS=="centos" ]]; then
+		if [[ $OS=="asd" ]]; then
+		# if dpkg -l | grep kibana > /dev/null; then
+			echo "Kibana ya está instalado en tu sistema."
+		 	echo "No se continúa con la instalación"
+		else
+			yum install --enablerepo=kibana kibana
+		 	cp /etc/kibana/kibana.yml '/etc/kibana/kibana.yml.backup$(date +%d)'
+		 	sudo systemctl daemon-reload || true
+		 	sudo systemctl enable kibana.service || sudo chkconfig --add kibana
+		 	if [[ $IP_Elasticsearch -ne '' ]]; then
+		 		echo "Se modifica la configuración de kibana para que apunte a la IP y puertos indicados para Elasticsearch"
+		 		sed -i "s|#elasticsearch.hosts: [\"http://localhost:9200\"]$|elasticsearch.hosts: [\"http://IP_Elasticsearch:Puerto_Elasticsearch\"]|" /etc/kibana/kibana.yml
+		 	fi
+		 	echo "Se ha instalado kibana y se ha habilitado en System-D"
+		 	echo "Para iniciar/parar el servicio basta con utilizar"
+		 	echo "service kibana [start | stop] "
+		 	systemctl start kibana.service || service kibana start
+		fi
 	fi
 }
 
@@ -295,7 +382,7 @@ function instalarLogstash(){
 			echo "Se ha instalado Logstash y se ha habilitado en System-D"
 			echo "Para iniciar/parar el servicio basta con utilizar"
 			echo "systemctl [start | stop] logstash.service"
-			systemctl start logstash.service
+			systemctl start logstash.service || service logstash start
 		fi
 	elif [[ $OS=="centos" ]]; then
 		if [[ $OS=="asd" ]]; then
@@ -303,7 +390,7 @@ function instalarLogstash(){
 			echo "Logstash ya está instalado en tu sistema."
 			echo "No se continúa con la instalación"
 		else
-			yum install logstash
+			yum install --enablerepo=logstash logstash
 			cp /etc/logstash/logstash.yml '/etc/logstash/logstash.yml.backup$(date +%d)'
 			systemctl daemon-reload || true
 			systemctl enable logstash.service || sudo chkconfig --add logstash
@@ -341,7 +428,7 @@ function instalarFilebeat(){
 			filebeat setup
 			echo "Para continuar la configuración, es necesario editar manualmente el fichero:"
 			echo "sudo nano /etc/filebeat/filebeat.yml"
-			systemctl start filebeat.service
+			systemctl start filebeat.service || service filebeat start
 		fi
 	elif [[ $OS=="centos" ]]; then
 		#statements
