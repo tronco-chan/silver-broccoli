@@ -390,7 +390,7 @@ function instalarLogstash(){
 			echo "Logstash ya está instalado en tu sistema."
 			echo "No se continúa con la instalación"
 		else
-			yum -y install --enablerepo=logstash logstash
+			yum -y install logstash
 			cp /etc/logstash/logstash.yml '/etc/logstash/logstash.yml.backup$(date +%d)'
 			systemctl daemon-reload || true
 			systemctl enable logstash.service || sudo chkconfig --add logstash
