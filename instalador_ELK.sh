@@ -136,7 +136,7 @@ function anadirRepositorios() {
 			echo 'gpgkey=https://artifacts.elastic.co/GPG-KEY-elasticsearch' >> /etc/yum.repos.d/elasticsearch.repo
 			echo 'enabled=0' >> /etc/yum.repos.d/elasticsearch.repo
 			echo 'autorefresh=1' >> /etc/yum.repos.d/elasticsearch.repo
-			#echo 'type=rpm-md" > /etc/yum.repos.d/elasticsearch.repo' >> /etc/yum.repos.d/elasticsearch.repo
+			echo 'type=rpm-md" > /etc/yum.repos.d/elasticsearch.repo' >> /etc/yum.repos.d/elasticsearch.repo
 			##
 			echo "Añadiendo repositorio Kibana"
 			touch /etc/yum.repos.d/kibana.repo
@@ -147,7 +147,7 @@ function anadirRepositorios() {
 			echo 'gpgkey=https://artifacts.elastic.co/GPG-KEY-elasticsearch' >> /etc/yum.repos.d/kibana.repo
 			echo 'enabled=1' >> /etc/yum.repos.d/kibana.repo
 			echo 'autorefresh=1' >> /etc/yum.repos.d/kibana.repo
-			#echo 'type=rpm-md' >> /etc/yum.repos.d/kibana.repo
+			echo 'type=rpm-md' >> /etc/yum.repos.d/kibana.repo
 			##
 			echo "Añadiendo repositorio Logstash"
 			touch /etc/yum.repos.d/logstash.repo
@@ -158,15 +158,15 @@ function anadirRepositorios() {
 			echo 'gpgkey=https://artifacts.elastic.co/GPG-KEY-elasticsearch' >> /etc/yum.repos.d/logstash.repo
 			echo 'enabled=1' >> /etc/yum.repos.d/logstash.repo
 			echo 'autorefresh=1' >> /etc/yum.repos.d/logstash.repo
-			#echo 'type=rpm-md' >> /etc/yum.repos.d/logstash.repo
+			echo 'type=rpm-md' >> /etc/yum.repos.d/logstash.repo
 
 		fi
 	fi
 }
 
 function modificarSeguridadElastic(){
-	echo "Quieres habilitar la seguridad avanzada en elastic? (gestión de usuarios en Kibana) [y/n]"
-	echo "De ser así, se modificarán las contraseñas de los usuarios predeterminados:"
+	echo "Quieres habilitar la seguridad avanzada en elastic? (gestión de usuarios en Kibana)"
+	echo "De ser así, se modificarán las contraseñas de los usuarios predeterminados: [y/n]"
 	CONTINUAR='false'
 	read -e CONTINUAR
 	if [[ $CONTINUAR =~ 'y' ]]; then
