@@ -136,7 +136,7 @@ function anadirRepositorios() {
 			echo 'gpgkey=https://artifacts.elastic.co/GPG-KEY-elasticsearch' >> /etc/yum.repos.d/elasticsearch.repo
 			echo 'enabled=0' >> /etc/yum.repos.d/elasticsearch.repo
 			echo 'autorefresh=1' >> /etc/yum.repos.d/elasticsearch.repo
-			echo 'type=rpm-md" > /etc/yum.repos.d/elasticsearch.repo' >> /etc/yum.repos.d/elasticsearch.repo
+			#echo 'type=rpm-md" > /etc/yum.repos.d/elasticsearch.repo' >> /etc/yum.repos.d/elasticsearch.repo
 			##
 			echo "Añadiendo repositorio Kibana"
 			touch /etc/yum.repos.d/kibana.repo
@@ -147,7 +147,7 @@ function anadirRepositorios() {
 			echo 'gpgkey=https://artifacts.elastic.co/GPG-KEY-elasticsearch' >> /etc/yum.repos.d/kibana.repo
 			echo 'enabled=1' >> /etc/yum.repos.d/kibana.repo
 			echo 'autorefresh=1' >> /etc/yum.repos.d/kibana.repo
-			echo 'type=rpm-md' >> /etc/yum.repos.d/kibana.repo
+			#echo 'type=rpm-md' >> /etc/yum.repos.d/kibana.repo
 			##
 			echo "Añadiendo repositorio Logstash"
 			touch /etc/yum.repos.d/logstash.repo
@@ -158,7 +158,7 @@ function anadirRepositorios() {
 			echo 'gpgkey=https://artifacts.elastic.co/GPG-KEY-elasticsearch' >> /etc/yum.repos.d/logstash.repo
 			echo 'enabled=1' >> /etc/yum.repos.d/logstash.repo
 			echo 'autorefresh=1' >> /etc/yum.repos.d/logstash.repo
-			echo 'type=rpm-md' >> /etc/yum.repos.d/logstash.repo
+			#echo 'type=rpm-md' >> /etc/yum.repos.d/logstash.repo
 
 		fi
 	fi
@@ -276,7 +276,7 @@ function instalarElasticsearch(){
 		 	echo "Elasticsearch ya está instalado en tu sistema."
 		 	echo "No se continúa con la instalación"
 		else
-		 	yum install --enablerepo=elasticsearch elasticsearch
+		 	yum install elasticsearch
 		 	cp /etc/elasticsearch/elasticsearch.yml '/etc/elasticsearch/elasticsearch.yml.backup$(date+%d)'
 		 	systemctl daemon-reload || true
 		 	systemctl enable elasticsearch.service || sudo chkconfig --add elasticsearch
@@ -346,7 +346,7 @@ function instalarKibana(){
 			echo "Kibana ya está instalado en tu sistema."
 		 	echo "No se continúa con la instalación"
 		else
-			yum install --enablerepo=kibana kibana
+			yum install kibana
 		 	cp /etc/kibana/kibana.yml '/etc/kibana/kibana.yml.backup$(date +%d)'
 		 	sudo systemctl daemon-reload || true
 		 	sudo systemctl enable kibana.service || sudo chkconfig --add kibana
