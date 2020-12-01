@@ -466,7 +466,7 @@ function desinstalarKibana() {
 			return
 		fi
 	elif [[ $OS == "centos" ]]; then
-		yum remove kibana
+		yum -y remove kibana
 		ELIMINARFICHEROS='false'
 		until [[ $ELIMINARFICHEROS =~ (y|n) ]]; do
 			read -rp "Eliminar ficheros de datos de Kibana /var/lib? [y/n]: " -e ELIMINARFICHEROS
@@ -492,7 +492,7 @@ function desinstalarLogstash() {
 			return
 		fi
 	elif [[ $OS == "centos" ]]; then
-		yum remove logstash
+		yum -y remove logstash
 		ELIMINARFICHEROS='false'
 		until [[ $ELIMINARFICHEROS =~ (y|n) ]]; do
 			read -rp "Eliminar ficheros de datos de LogsStash /var/lib? [y/n]: " -e ELIMINARFICHEROS
@@ -518,7 +518,7 @@ function desinstalarElasticsearch() {
 			return
 		fi
 	elif [[ $OS == "centos" ]]; then
-		yum remove elasticsearch
+		yum -y remove elasticsearch
 		ELIMINARFICHEROS='false'
 		until [[ $ELIMINARFICHEROS =~ (y|n) ]]; do
 			read -rp "Eliminar ficheros de datos de Elasticsearch en/var/lib? [y/n]: " -e ELIMINARFICHEROS
@@ -544,7 +544,7 @@ function desinstalarFilebeat() {
 			return
 		fi
 	elif [[ $OS == "centos" ]]; then
-		yum remove filebeat
+		yum -y remove filebeat
 		ELIMINARFICHEROS='false'
 		until [[ $ELIMINARFICHEROS =~ (y|n) ]]; do
 			read -rp "Eliminar ficheros de datos de Filebeat /var/lib? [y/n]: " -e ELIMINARFICHEROS
