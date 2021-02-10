@@ -1,5 +1,83 @@
 #!/bin/bash
 
+function checkOS() {
+	if [[ -e /etc/debian_version ]]; then
+		OS="debian"
+		source /etc/os-release
+
+		if [[ $ID == "debian" || $ID == "raspbian" ]]; then
+			if [[ $VERSION_ID -lt 9 ]]; then
+				echo "⚠️ Your version of Debian is not supported."
+				echo ""
+				echo "However, if you're using Debian >= 9 or unstable/testing then you can continue, at your own risk."
+				echo ""
+				until [[ $CONTINUE =~ (y|n) ]]; do
+					read -rp "Continue? [y/n]: " -e CONTINUE
+				done
+				if [[ $CONTINUE == "n" ]]; then
+					exit 1
+				fi
+			fi
+		elif [[ $ID == "ubuntu" ]]; then
+			OS="ubuntu"
+			MAJOR_UBUNTU_VERSION=$(echo "$VERSION_ID" | cut -d '.' -f1)
+			if [[ $MAJOR_UBUNTU_VERSION -lt 16 ]]; then
+				echo "⚠️ Your version of Ubuntu is not supported."
+				echo ""
+				echo "However, if you're using Ubuntu >= 16.04 or beta, then you can continue, at your own risk."
+				echo ""
+				until [[ $CONTINUE =~ (y|n) ]]; do
+					read -rp "Continue? [y/n]: " -e CONTINUE
+				done
+				if [[ $CONTINUE == "n" ]]; then
+					exit 1
+				fi
+			fi
+		fi
+	elif [[ -e /etc/system-release ]]; then
+		source /etc/os-release
+		if [[ $ID == "fedora" ]]; then
+			OS="fedora"
+		fi
+		if [[ $ID == "centos" ]]; then
+			OS="centos"
+			if [[ ! $VERSION_ID =~ (7|8) ]]; then
+				echo "⚠️ Your version of CentOS is not supported."
+				echo ""
+				echo "The script only support CentOS 7 and CentOS 8."
+				echo ""
+				exit 1
+			fi
+		fi
+		if [[ $ID == "amzn" ]]; then
+			OS="amzn"
+			if [[ $VERSION_ID != "2" ]]; then
+				echo "⚠️ Your version of Amazon Linux is not supported."
+				echo ""
+				echo "The script only support Amazon Linux 2."
+				echo ""
+				exit 1
+			fi
+		fi
+	elif [[ -e /etc/arch-release ]]; then
+		OS=arch
+	else
+		echo "Looks like you aren't running this installer on a Debian, Ubuntu, Fedora, CentOS, Amazon Linux 2 or Arch Linux system"
+		exit 1
+	fi
+}
+
+function initialCheck() {
+	if ! isRoot; then
+		echo "Sorry, you need to run this as root"
+		exit 1
+	fi
+	if ! tunAvailable; then
+		echo "TUN is not available"
+		exit 1
+	fi
+	checkOS
+}
 
 function newClient() {
 	echo ""
@@ -79,6 +157,7 @@ function newClient() {
 	echo "Download the .ovpn file and import it in your OpenVPN client."
 	exit 0
 }
+
 function revokeClient() {
 	NUMBEROFCLIENTS=$(tail -n +2 /etc/openvpn/easy-rsa/pki/index.txt | grep -c "^V")
 	if [[ $NUMBEROFCLIENTS == '0' ]]; then
@@ -109,33 +188,40 @@ function revokeClient() {
 	echo ""
 	echo "Certificate for client $CLIENT revoked."
 }
-function removeUnbound() {
-	# Remove OpenVPN-related config
-	sed -i '/include: \/etc\/unbound\/openvpn.conf/d' /etc/unbound/unbound.conf
-	rm /etc/unbound/openvpn.conf
-	until [[ $REMOVE_UNBOUND =~ (y|n) ]]; do
-		echo ""
-		echo "If you were already using Unbound before installing OpenVPN, I removed the configuration related to OpenVPN."
-		read -rp "Do you want to completely remove Unbound? [y/n]: " -e REMOVE_UNBOUND
+
+function manageMenu() {
+	echo "Welcome to OpenVPN-install!"
+	echo "The git repository is available at: https://github.com/angristan/openvpn-install"
+	echo ""
+	echo "It looks like OpenVPN is already installed."
+	echo ""
+	echo "What do you want to do?"
+	echo "   1) Add a new user"
+	echo "   2) "
+	echo "   3) Revoke existing user"
+	echo "   4) Exit"
+	until [[ $MENU_OPTION =~ ^[1-4]$ ]]; do
+		read -rp "Select an option [1-4]: " MENU_OPTION
 	done
-	if [[ $REMOVE_UNBOUND == 'y' ]]; then
-		# Stop Unbound
-		systemctl stop unbound
-		if [[ $OS =~ (debian|ubuntu) ]]; then
-			apt-get autoremove --purge -y unbound
-		elif [[ $OS == 'arch' ]]; then
-			pacman --noconfirm -R unbound
-		elif [[ $OS =~ (centos|amzn) ]]; then
-			yum remove -y unbound
-		elif [[ $OS == 'fedora' ]]; then
-			dnf remove -y unbound
-		fi
-		rm -rf /etc/unbound/
-		echo ""
-		echo "Unbound removed!"
-	else
-		systemctl restart unbound
-		echo ""
-		echo "Unbound wasn't removed."
-	fi
+	case $MENU_OPTION in
+	1)
+		newClient
+		;;
+	2)
+
+		;;
+	3)
+		revokeClient
+		;;
+	4)
+		exit 0
+		;;
+	esac
 }
+
+# Check for root, TUN, OS...
+initialCheck
+# Check if OpenVPN is already installed
+if [[ -e /etc/openvpn/server.conf && $AUTO_INSTALL != "y" ]]; then
+	manageMenu
+fi
