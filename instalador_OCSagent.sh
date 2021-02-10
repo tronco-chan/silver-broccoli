@@ -59,7 +59,7 @@ function ejecucionINSTALL() {
 	mv UnixAgent-2.8.0.tar.gz?raw=true v2.8.0.tar.gz
   tar -xvzf v2.8.0.tar.gz
   cd UnixAgent-2.8.0
-  sudo env PERL_AUTOINSTALL=1 perl Makefile.PL && make && make install && perl postinst.pl --nowizard --server=https://ocsng.altia.es --nossl --logfile=/var/log/ocsinventoryagent-logsfolder/ocsagent.log --crontab --now
+  sudo env PERL_AUTOINSTALL=1 perl Makefile.PL && make && make install && perl postinst.pl --nowizard --server=https://ocsng.INSERTSERVER.es --nossl --logfile=/var/log/ocsinventoryagent-logsfolder/ocsagent.log --crontab --now
   #make
   #make install
 }
