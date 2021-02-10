@@ -107,7 +107,7 @@ function anadirPaqueteTransport(){
 		# 	echo "Paquete ya instalado"
 		# else
 		# 	echo "Paquete no instalado. Se instala"
-		# 	sudo yum install apt-transport-https
+		# 	sudo yum -y install apt-transport-https
 		# fi
 	fi
 }
@@ -165,8 +165,8 @@ function anadirRepositorios() {
 }
 
 function modificarSeguridadElastic(){
-	echo "Quieres habilitar la seguridad avanzada en elastic? (gestión de usuarios en Kibana) [y/n]"
-	echo "De ser así, se modificarán las contraseñas de los usuarios predeterminados:"
+	echo "Quieres habilitar la seguridad avanzada en elastic? (gestión de usuarios en Kibana)"
+	echo "De ser así, se modificarán las contraseñas de los usuarios predeterminados: [y/n]"
 	CONTINUAR='false'
 	read -e CONTINUAR
 	if [[ $CONTINUAR =~ 'y' ]]; then
@@ -217,7 +217,7 @@ function instalarJava(){
 		 	echo "Java ya está instalado en tu sistema."
 	 		echo "No se continúa con la instalación"
 		else
-			yum install java-1.8.0-openjdk
+			yum -y install java-1.8.0-openjdk
 		fi
 	fi
 }
@@ -276,7 +276,7 @@ function instalarElasticsearch(){
 		 	echo "Elasticsearch ya está instalado en tu sistema."
 		 	echo "No se continúa con la instalación"
 		else
-		 	yum install --enablerepo=elasticsearch elasticsearch
+		 	yum -y install elasticsearch
 		 	cp /etc/elasticsearch/elasticsearch.yml '/etc/elasticsearch/elasticsearch.yml.backup$(date+%d)'
 		 	systemctl daemon-reload || true
 		 	systemctl enable elasticsearch.service || sudo chkconfig --add elasticsearch
@@ -346,7 +346,7 @@ function instalarKibana(){
 			echo "Kibana ya está instalado en tu sistema."
 		 	echo "No se continúa con la instalación"
 		else
-			yum install --enablerepo=kibana kibana
+			yum -y install kibana
 		 	cp /etc/kibana/kibana.yml '/etc/kibana/kibana.yml.backup$(date +%d)'
 		 	sudo systemctl daemon-reload || true
 		 	sudo systemctl enable kibana.service || sudo chkconfig --add kibana
@@ -390,7 +390,7 @@ function instalarLogstash(){
 			echo "Logstash ya está instalado en tu sistema."
 			echo "No se continúa con la instalación"
 		else
-			yum install --enablerepo=logstash logstash
+			yum -y install logstash
 			cp /etc/logstash/logstash.yml '/etc/logstash/logstash.yml.backup$(date +%d)'
 			systemctl daemon-reload || true
 			systemctl enable logstash.service || sudo chkconfig --add logstash
@@ -436,7 +436,7 @@ function instalarFilebeat(){
 			echo "Filebeat ya está instalado en tu sistema."
 			echo "No se continúa con la instalación"
 		else
-			yum install filebeat
+			yum -y install filebeat
 			cp /etc/filebeat/filebeat.yml '/etc/filebeat/filebeat.yml.backup$(date +%d)'
 			sudo systemctl daemon-reload || true
 			sudo systemctl enable filebeat.service || sudo chkconfig --add filebeat
@@ -466,7 +466,7 @@ function desinstalarKibana() {
 			return
 		fi
 	elif [[ $OS == "centos" ]]; then
-		yum remove kibana
+		yum -y remove kibana
 		ELIMINARFICHEROS='false'
 		until [[ $ELIMINARFICHEROS =~ (y|n) ]]; do
 			read -rp "Eliminar ficheros de datos de Kibana /var/lib? [y/n]: " -e ELIMINARFICHEROS
@@ -492,7 +492,7 @@ function desinstalarLogstash() {
 			return
 		fi
 	elif [[ $OS == "centos" ]]; then
-		yum remove logstash
+		yum -y remove logstash
 		ELIMINARFICHEROS='false'
 		until [[ $ELIMINARFICHEROS =~ (y|n) ]]; do
 			read -rp "Eliminar ficheros de datos de LogsStash /var/lib? [y/n]: " -e ELIMINARFICHEROS
@@ -518,7 +518,7 @@ function desinstalarElasticsearch() {
 			return
 		fi
 	elif [[ $OS == "centos" ]]; then
-		yum remove elasticsearch
+		yum -y remove elasticsearch
 		ELIMINARFICHEROS='false'
 		until [[ $ELIMINARFICHEROS =~ (y|n) ]]; do
 			read -rp "Eliminar ficheros de datos de Elasticsearch en/var/lib? [y/n]: " -e ELIMINARFICHEROS
@@ -544,7 +544,7 @@ function desinstalarFilebeat() {
 			return
 		fi
 	elif [[ $OS == "centos" ]]; then
-		yum remove filebeat
+		yum -y remove filebeat
 		ELIMINARFICHEROS='false'
 		until [[ $ELIMINARFICHEROS =~ (y|n) ]]; do
 			read -rp "Eliminar ficheros de datos de Filebeat /var/lib? [y/n]: " -e ELIMINARFICHEROS

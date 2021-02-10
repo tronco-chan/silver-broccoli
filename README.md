@@ -2,7 +2,7 @@
 
 Instaladores automatizados
 
-## Suite ELK (Elasticsearch Logstash Kibana) ✅ ![](https://progress-bar.dev/85/?title=Ubuntu) ![](https://progress-bar.dev/61/?title=Centos)
+## Suite ELK (Elasticsearch Logstash Kibana) ✅ ![](https://progress-bar.dev/85/?title=Ubuntu) ✅ ![](https://progress-bar.dev/85/?title=Centos)
 
 Descargar y convertir en ejecutable:
 
@@ -63,7 +63,7 @@ Ejecutar:
 ./instalador_dhcp.sh
 ```
 
-## Startup Installer (Win) ✅ ![](https://progress-bar.dev/99/)
+## Startup Installer (Win) ✅ ![](https://progress-bar.dev/100/)
 
 Descargar y convertir en ejecutable:
 
@@ -75,4 +75,3 @@ Ejecutar:
 ```sh
 
 ```
-ToDo: fix acrobat installer
