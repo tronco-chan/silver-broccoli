@@ -1,4 +1,5 @@
-# silver-broccoli
+# silver-broccoli [![GitHub Super-Linter](https://github.com/tronco-chan/silver-broccoli/workflows/Lint%20Code%20Base/badge.svg)](https://github.com/marketplace/actions/super-linter)
+
 
 Instaladores automatizados
 
