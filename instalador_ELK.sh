@@ -10,8 +10,8 @@
 ##Versión 1.1: Se añaden opciones para Centos                                                          ##
 ##                                                                                                     ##
 ##Autores:                                                                                             ##
-##			Luis Mera Castro																		                                           ##
-##			Rubén Míguez Bouzas										                                                         ##
+##			Luis Mera Castro							       ##
+##			Rubén Míguez Bouzas							       ##
 #########################################################################################################
 
 #Almacenamos el directorio actual en la variable PWD
